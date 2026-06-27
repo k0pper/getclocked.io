@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { and, eq, gt } from 'drizzle-orm';
-import type { Database } from '../db/client';
-import { sessions, users } from '../db/schema';
-import { hashPassword, verifyPassword } from './password';
-import { hashSessionToken, newSessionToken, SESSION_TTL_MS } from './session';
+import type { Database } from '../db/client.js';
+import { sessions, users } from '../db/schema.js';
+import { hashPassword, verifyPassword } from './password.js';
+import { hashSessionToken, newSessionToken, SESSION_TTL_MS } from './session.js';
 
 export interface AuthUser {
   id: string;

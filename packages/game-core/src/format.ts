@@ -1,4 +1,4 @@
-import type { Ms } from './units';
+import type { Ms } from './units.js';
 
 const pad2 = (n: number): string => (n < 10 ? `0${n}` : `${n}`);
 const pad3 = (n: number): string => n.toString().padStart(3, '0');

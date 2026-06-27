@@ -2,18 +2,18 @@ import { Hono } from 'hono';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
 import type { Context } from 'hono';
-import { ConfigError, isProd, requireTokenSecret } from './env';
-import { getDb } from './db/client';
+import { ConfigError, isProd, requireTokenSecret } from './env.js';
+import { getDb } from './db/client.js';
 import {
   destroySession,
   getSessionUser,
   login,
   signup,
   type AuthUser,
-} from './auth/service';
-import { SESSION_COOKIE, SESSION_TTL_MS } from './auth/session';
-import { leaderboard, startGame, submitScore } from './game/service';
-import { validateGuesses, validatePassword, validateUsername } from './validate';
+} from './auth/service.js';
+import { SESSION_COOKIE, SESSION_TTL_MS } from './auth/session.js';
+import { leaderboard, startGame, submitScore } from './game/service.js';
+import { validateGuesses, validatePassword, validateUsername } from './validate.js';
 
 type Env = { Variables: { user: AuthUser } };
 

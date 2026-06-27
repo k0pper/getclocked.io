@@ -1,5 +1,5 @@
-import type { Seed } from './units';
-import { seed as toSeed } from './units';
+import type { Seed } from './units.js';
+import { seed as toSeed } from './units.js';
 
 /** A deterministic pseudo-random source yielding floats in `[0, 1)`. */
 export interface Rng {

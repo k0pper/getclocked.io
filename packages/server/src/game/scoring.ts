@@ -1,5 +1,5 @@
 import { finalOf, gameReducer, initGame, ms, seed as toSeed } from '@getclocked/game-core';
-import type { StoredRound } from '../db/schema';
+import type { StoredRound } from '../db/schema.js';
 
 export interface Rescored {
   /** Final 0–10 score, recomputed server-side. */

@@ -1,9 +1,9 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { desc, eq, gt, sql } from 'drizzle-orm';
-import type { Database } from '../db/client';
-import { redeemedTokens, scores, users } from '../db/schema';
-import { rescore } from './scoring';
-import { newNonce, signGameToken, verifyGameToken } from './token';
+import type { Database } from '../db/client.js';
+import { redeemedTokens, scores, users } from '../db/schema.js';
+import { rescore } from './scoring.js';
+import { newNonce, signGameToken, verifyGameToken } from './token.js';
 
 /** Game tokens are short-lived — long enough to finish a 7-round run, not so
  *  long they sit around as reusable capabilities. */

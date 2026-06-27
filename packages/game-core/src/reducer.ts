@@ -1,7 +1,7 @@
-import type { Ms, Score, Seed } from './units';
-import { ms } from './units';
-import { DEFAULT_DURATION_CONFIG, generateTargets, type DurationConfig } from './duration';
-import { DEFAULT_SCORING, finalScore, roundScore, type ScoringConfig } from './scoring';
+import type { Ms, Score, Seed } from './units.js';
+import { ms } from './units.js';
+import { DEFAULT_DURATION_CONFIG, generateTargets, type DurationConfig } from './duration.js';
+import { DEFAULT_SCORING, finalScore, roundScore, type ScoringConfig } from './scoring.js';
 
 export interface RoundResult {
   /** 0-based round index. */

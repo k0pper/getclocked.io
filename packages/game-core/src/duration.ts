@@ -1,6 +1,6 @@
-import type { Ms, Seed } from './units';
-import { ms } from './units';
-import { mulberry32, deriveSeed, type Rng } from './rng';
+import type { Ms, Seed } from './units.js';
+import { ms } from './units.js';
+import { mulberry32, deriveSeed, type Rng } from './rng.js';
 
 export interface DurationConfig {
   /** Shortest possible target. */

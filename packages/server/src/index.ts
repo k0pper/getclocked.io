@@ -1,3 +1,3 @@
-export { app } from './app';
-export type { AuthUser } from './auth/service';
-export type { LeaderboardEntry, LeaderboardResult } from './game/service';
+export { app } from './app.js';
+export type { AuthUser } from './auth/service.js';
+export type { LeaderboardEntry, LeaderboardResult } from './game/service.js';

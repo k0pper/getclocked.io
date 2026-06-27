@@ -1,5 +1,5 @@
-import type { Ms, Score } from './units';
-import { clamp, ms, score } from './units';
+import type { Ms, Score } from './units.js';
+import { clamp, ms, score } from './units.js';
 
 export interface ScoringConfig {
   /**
