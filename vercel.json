@@ -3,5 +3,8 @@
   "buildCommand": "pnpm --filter @getclocked/server build && pnpm build",
   "installCommand": "pnpm install --frozen-lockfile; pnpm rebuild esbuild @tailwindcss/oxide",
   "outputDirectory": "apps/web/dist",
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
 }

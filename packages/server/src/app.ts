@@ -55,11 +55,43 @@ const requireAuth = createMiddleware<Env>(async (c, next) => {
 
 /* ── Same-origin guard (defense in depth; SameSite cookies do the real work) ── */
 
+/**
+ * Decide whether a state-changing request may proceed, given its `Origin` and
+ * `Host` headers and the optional `APP_ORIGIN` allowlist.
+ *
+ * A browser sends `Origin` on cross-origin (and most same-origin) POSTs. We let
+ * a request through when:
+ *   - there is no `Origin` (non-browser client / same-origin GET-style fetch), or
+ *   - the `Origin`'s host equals the request's own `Host` (genuinely same-origin —
+ *     the case that must never break, regardless of deployment URL), or
+ *   - the `Origin` exactly matches an explicitly-allowed `APP_ORIGIN`.
+ *
+ * Deriving "same-origin" from the request itself means a new preview URL or a
+ * domain change can't silently 403 every POST — the historical landmine of
+ * pinning the allowed origin to a hand-set env var that drifts out of sync.
+ */
+export function isOriginAllowed(
+  origin: string | undefined,
+  host: string | undefined,
+  allowed: string | undefined,
+): boolean {
+  if (!origin) return true;
+  if (allowed && origin === allowed) return true;
+  if (host) {
+    try {
+      if (new URL(origin).host === host) return true;
+    } catch {
+      /* malformed Origin → fall through to reject */
+    }
+  }
+  return false;
+}
+
 app.use('*', async (c, next) => {
   if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
-    const allowed = process.env.APP_ORIGIN;
     const origin = c.req.header('origin');
-    if (allowed && origin && origin !== allowed) {
+    const host = c.req.header('host');
+    if (!isOriginAllowed(origin, host, process.env.APP_ORIGIN)) {
       return c.json({ error: 'Bad origin.' }, 403);
     }
   }
