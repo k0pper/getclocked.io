@@ -45,6 +45,21 @@ export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) 
       exit={reduce ? undefined : { opacity: 0, transition: { duration: 0.2 } }}
       variants={container}
     >
+      {/* Eyebrow — a booth "rec" light; introduces the red LED */}
+      <motion.div
+        variants={item}
+        className="flex items-center gap-2.5 font-mono text-[0.7rem] uppercase tracking-[0.35em] text-steel"
+      >
+        <span className="relative flex h-2 w-2">
+          <motion.span
+            className="inline-flex h-2 w-2 rounded-full bg-led-red shadow-[0_0_0.6em_var(--color-led-red)]"
+            animate={reduce ? undefined : { opacity: [1, 0.25, 1] }}
+            transition={reduce ? undefined : { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </span>
+        Singleplayer
+      </motion.div>
+
       {/* Wordmark — boots like an LED display */}
       <motion.div variants={item} className="flex flex-col items-center gap-2">
         <motion.div
@@ -92,7 +107,7 @@ export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) 
           animate={reduce ? undefined : { scale: [1, 1.035, 1] }}
           transition={reduce ? undefined : { duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <Button variant="primary" size="lg" onClick={onStart} aria-label="Start game">
+          <Button variant="amber" size="lg" onClick={onStart} aria-label="Start game">
             Tap in
           </Button>
         </motion.div>
