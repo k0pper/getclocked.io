@@ -10,9 +10,26 @@ import {
 import { audio } from '@/audio/engine';
 import type { LEDClockHandle } from '@/components/LEDClock';
 import type { BuzzerState } from '@/components/Buzzer';
-import { INTRO_MS, MAX_GUESS_MS, MIN_TAP_GAP_MS, PRE_PROMPT_MS } from '@/lib/constants';
+import {
+  COUNTDOWN_FROM,
+  COUNTDOWN_STEP_MS,
+  INTRO_MS,
+  LEAD_IN_MS,
+  MAX_GUESS_MS,
+  MIN_TAP_GAP_MS,
+  PRE_PROMPT_MS,
+  RESULTS_AUTO_MS,
+} from '@/lib/constants';
 
-export type Phase = 'idle' | 'intro' | 'target' | 'prompt' | 'reproduce' | 'result' | 'done';
+export type Phase =
+  | 'idle'
+  | 'intro'
+  | 'countdown'
+  | 'target'
+  | 'prompt'
+  | 'reproduce'
+  | 'result'
+  | 'done';
 
 export interface RoundMachine {
   phase: Phase;
@@ -22,6 +39,8 @@ export interface RoundMachine {
   scores: number[];
   buzzerState: BuzzerState;
   result: RoundResult | null;
+  /** During the pre-roll countdown, the digit currently shown (3→2→1); else null. */
+  countdown: number | null;
   interrupted: boolean;
   clockRef: React.RefObject<LEDClockHandle | null>;
   onBuzzerTap: (ts: number) => void;
@@ -42,6 +61,7 @@ export function useRoundMachine(
 ): RoundMachine {
   const [phase, setPhaseState] = useState<Phase>('idle');
   const [result, setResult] = useState<RoundResult | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [interrupted, setInterrupted] = useState(false);
 
   const clockRef = useRef<LEDClockHandle | null>(null);
@@ -94,21 +114,54 @@ export function useRoundMachine(
     if (!game) return;
 
     if (phase === 'intro') {
-      const t = window.setTimeout(() => goPhase('target'), INTRO_MS);
+      setCountdown(null); // never show a stale pre-roll digit during "get ready"
+      const t = window.setTimeout(() => goPhase('countdown'), INTRO_MS);
       return () => clearTimeout(t);
+    }
+
+    // Pre-roll: tick down 3·2·1 on a steady pulse, then hand off to `target` so
+    // the scheduled start beep lands exactly one step after the final tick. The
+    // final "1" stays lit through `target`'s look-ahead and is cleared the
+    // instant the start beep fires (see the ignite timer below), so the digit
+    // is in lock-step with the sound and never blinks out early.
+    if (phase === 'countdown') {
+      setResult(null);
+      clockRef.current?.clear();
+      setCountdown(COUNTDOWN_FROM);
+      audio.play('count');
+      const timers: number[] = [];
+      for (let i = 1; i < COUNTDOWN_FROM; i++) {
+        timers.push(
+          window.setTimeout(() => {
+            setCountdown(COUNTDOWN_FROM - i);
+            audio.play('count');
+          }, i * COUNTDOWN_STEP_MS),
+        );
+      }
+      timers.push(
+        window.setTimeout(
+          () => goPhase('target'),
+          // The `target` effect schedules its start beep LEAD_IN_MS later, so
+          // arrive that much early to keep the beat even.
+          COUNTDOWN_FROM * COUNTDOWN_STEP_MS - LEAD_IN_MS,
+        ),
+      );
+      return () => timers.forEach(clearTimeout);
     }
 
     if (phase === 'target') {
       setInterrupted(false);
       setResult(null);
-      clockRef.current?.clear();
       const target = game.targets[game.current];
       if (target == null) {
         goPhase('done');
         return;
       }
       const { startInMs, stopInMs } = audio.scheduleTargetBeeps(target);
-      const t1 = window.setTimeout(() => clockRef.current?.ignite(target), startInMs);
+      const t1 = window.setTimeout(() => {
+        setCountdown(null); // clear the "1" exactly as the start beep sounds
+        clockRef.current?.ignite(target);
+      }, startInMs);
       const t2 = window.setTimeout(() => goPhase('prompt'), stopInMs + PRE_PROMPT_MS);
       return () => {
         clearTimeout(t1);
@@ -118,6 +171,13 @@ export function useRoundMachine(
 
     if (phase === 'reproduce') {
       const t = window.setTimeout(() => replayRound(), MAX_GUESS_MS);
+      return () => clearTimeout(t);
+    }
+
+    // After the final round there's nothing left to play — roll to the results
+    // screen on its own instead of waiting on a click.
+    if (phase === 'result' && game.status === 'complete') {
+      const t = window.setTimeout(() => goPhase('done'), RESULTS_AUTO_MS);
       return () => clearTimeout(t);
     }
 
@@ -132,7 +192,10 @@ export function useRoundMachine(
   useEffect(() => {
     const onVis = () => {
       const p = phaseRef.current;
-      if (document.hidden && (p === 'target' || p === 'prompt' || p === 'reproduce')) {
+      if (
+        document.hidden &&
+        (p === 'countdown' || p === 'target' || p === 'prompt' || p === 'reproduce')
+      ) {
         replayRound();
       }
     };
@@ -202,6 +265,7 @@ export function useRoundMachine(
     scores,
     buzzerState,
     result,
+    countdown,
     interrupted,
     clockRef,
     onBuzzerTap,

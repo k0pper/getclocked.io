@@ -10,6 +10,14 @@ export const INTRO_MS = 1200;
 /** Lead-in on the audio clock before a scheduled target beep fires. */
 export const LEAD_IN_MS = 240;
 
+/** Pre-roll countdown ("3·2·1") so the player knows exactly when the reference
+ *  interval's first beep lands, and can start their mental count on the beat. */
+export const COUNTDOWN_FROM = 3;
+
+/** Even gap between each countdown tick — and between the final tick and the
+ *  start beep, so the whole pre-roll is one steady pulse. */
+export const COUNTDOWN_STEP_MS = 640;
+
 /** How long the LED "ignites" (counts up, visible) before fading to dark. */
 export const IGNITION_MS = 440;
 
@@ -33,6 +41,10 @@ export const PRE_PROMPT_MS = 550;
 
 /** Beat shown on the round-result reveal before the player can continue. */
 export const REVEAL_MIN_MS = 700;
+
+/** After the *final* round's reveal, auto-advance to the results screen (no
+ *  click) — long enough to read the last score. */
+export const RESULTS_AUTO_MS = 2600;
 
 /** localStorage key for the personal best (versioned so we can migrate). */
 export const PERSONAL_BEST_KEY = 'getclocked:pb:v1';

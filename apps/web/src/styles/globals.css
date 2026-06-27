@@ -78,20 +78,26 @@
     margin: 0;
     font-family: var(--font-sans);
     color: var(--color-bone);
-    background-color: var(--color-void);
-    /* Booth atmosphere: amber wash from above, green from below, central lift. */
+    /* Old CRT monitor: solid black under a stack of thin horizontal scanlines,
+       a faint phosphor-green glow at the centre, and an edge vignette. The
+       scanline layer is fixed so it reads as the glass, not the content. */
+    background-color: #000;
     background-image:
+      /* Even 2px line / 2px gap: equal, integer-pixel bands so they don't beat
+         into "every other stripe looks wider" at fractional device-pixel ratios. */
+      repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.03) 0,
+        rgba(255, 255, 255, 0.03) 2px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0) 4px
+      ),
       radial-gradient(
-        60rem 40rem at 50% -10rem,
-        color-mix(in oklab, var(--color-led-amber) 7%, transparent),
+        60rem 44rem at 50% 42%,
+        color-mix(in oklab, var(--color-led-green) 4%, transparent),
         transparent 70%
       ),
-      radial-gradient(
-        70rem 52rem at 50% 120%,
-        color-mix(in oklab, var(--color-led-green) 6%, transparent),
-        transparent 65%
-      ),
-      radial-gradient(48rem 48rem at 50% 38%, #0b0f18, transparent 72%);
+      radial-gradient(120% 100% at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.65));
     background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
