@@ -25,9 +25,11 @@ describe('generateTargets', () => {
     expect(generateTargets(seed(1))).not.toEqual(generateTargets(seed(2)));
   });
 
-  it('places at most one target below the 250ms reaction floor', () => {
+  it('places at most one target in the short (~sub-1s) band', () => {
+    // Only the lowest log band sits below ~1086ms, so a game never has two
+    // "easy short" rounds.
     for (let s = 0; s < 100; s++) {
-      const short = generateTargets(seed(s)).filter((t) => t < 250);
+      const short = generateTargets(seed(s)).filter((t) => t < 1050);
       expect(short.length).toBeLessThanOrEqual(1);
     }
   });
@@ -35,7 +37,7 @@ describe('generateTargets', () => {
   it('always spans a wide range (variety from log-stratification)', () => {
     for (let s = 0; s < 25; s++) {
       const targets = generateTargets(seed(s));
-      expect(Math.min(...targets)).toBeLessThan(1000);
+      expect(Math.min(...targets)).toBeLessThan(1100);
       expect(Math.max(...targets)).toBeGreaterThan(3000);
     }
   });

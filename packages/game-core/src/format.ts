@@ -28,7 +28,7 @@ export function formatSeconds(totalMs: Ms): string {
 
 /**
  * Signed millisecond delta for the reveal, e.g. +142 / -30 / 0.
- * Positive = too slow (guess longer than target), negative = too fast.
+ * Positive = too late (guess longer than target), negative = too early.
  */
 export function formatSignedMs(deltaMs: Ms): string {
   const rounded = Math.round(deltaMs);

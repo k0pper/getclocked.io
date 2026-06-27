@@ -8,7 +8,7 @@ export interface RoundResult {
   index: number;
   targetMs: Ms;
   guessMs: Ms;
-  /** `guess − target`: positive = too slow, negative = too fast. */
+  /** `guess − target`: positive = too late, negative = too early. */
   deltaMs: Ms;
   points: Score;
 }
