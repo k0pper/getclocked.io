@@ -4,6 +4,9 @@
  * noted; tune freely — none of these change scoring, only feel.
  */
 
+/** Round intro card shown before the target beeps. */
+export const INTRO_MS = 1200;
+
 /** Lead-in on the audio clock before a scheduled target beep fires. */
 export const LEAD_IN_MS = 240;
 

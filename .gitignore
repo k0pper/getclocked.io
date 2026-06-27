@@ -21,6 +21,9 @@ node_modules/.tmp/
 .eslintcache
 .turbo/
 
+# local dev-only helper scripts (screenshots, scratch)
+apps/web/scripts/
+
 # deploy
 .vercel/
 

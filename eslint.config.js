@@ -14,6 +14,7 @@ export default tseslint.config(
       '**/test-results/**',
       '.agents/**',
       'apps/web/public/**',
+      'apps/web/scripts/**',
     ],
   },
   js.configs.recommended,
@@ -24,6 +25,10 @@ export default tseslint.config(
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: { ...globals.browser, ...globals.node },
+    },
+    rules: {
+      // Empty catch is idiomatic for best-effort localStorage / feature probes.
+      'no-empty': ['error', { allowEmptyCatch: true }],
     },
   },
   // React-specific rules only inside the web app.
