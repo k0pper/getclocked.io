@@ -1,6 +1,7 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  - 'api'
 
 # pnpm 10 blocks dependency build scripts by default; allow the ones our
 # toolchain genuinely needs to compile native binaries during install.

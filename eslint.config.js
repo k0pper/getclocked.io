@@ -14,7 +14,7 @@ export default tseslint.config(
       '**/test-results/**',
       '.agents/**',
       'apps/web/public/**',
-      'apps/web/scripts/**',
+      '**/scripts/**',
     ],
   },
   js.configs.recommended,

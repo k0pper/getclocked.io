@@ -1,0 +1,29 @@
+{
+  "name": "@getclocked/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "getclocked.io server — auth, leaderboard, and server-authoritative re-scoring (reuses @getclocked/game-core).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./app": "./src/app.ts",
+    "./db/schema": "./src/db/schema.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node scripts/migrate.mjs"
+  },
+  "dependencies": {
+    "@getclocked/game-core": "workspace:*",
+    "@neondatabase/serverless": "1.1.0",
+    "drizzle-orm": "0.45.2",
+    "hono": "4.12.27",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "26.0.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.9"
+  }
+}

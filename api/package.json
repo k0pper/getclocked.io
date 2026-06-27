@@ -1,0 +1,18 @@
+{
+  "name": "@getclocked/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Vercel serverless entry — adapts the Hono app (@getclocked/server) to a Node function.",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@getclocked/server": "workspace:*",
+    "@hono/node-server": "2.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "26.0.1",
+    "typescript": "6.0.3"
+  }
+}
