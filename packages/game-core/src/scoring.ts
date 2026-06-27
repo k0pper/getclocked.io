@@ -39,11 +39,7 @@ export function relativeError(effErrMs: Ms, targetMs: Ms): number {
 }
 
 /** Score a single round: `10 · e^(−k · relErr)`, clamped to `[0, 10]`. */
-export function roundScore(
-  targetMs: Ms,
-  guessMs: Ms,
-  cfg: ScoringConfig = DEFAULT_SCORING,
-): Score {
+export function roundScore(targetMs: Ms, guessMs: Ms, cfg: ScoringConfig = DEFAULT_SCORING): Score {
   const effErr = effectiveError(targetMs, guessMs, cfg.deadzoneMs);
   const relErr = relativeError(effErr, targetMs);
   const points = 10 * Math.exp(-cfg.k * relErr);

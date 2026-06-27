@@ -45,10 +45,7 @@ export function drawLogUniform(rng: Rng, loMs: number, hiMs: number): Ms {
  *
  * Deterministic in `root`: same seed → same targets, every time, everywhere.
  */
-export function generateTargets(
-  root: Seed,
-  cfg: DurationConfig = DEFAULT_DURATION_CONFIG,
-): Ms[] {
+export function generateTargets(root: Seed, cfg: DurationConfig = DEFAULT_DURATION_CONFIG): Ms[] {
   const { minMs, maxMs, rounds } = cfg;
   if (rounds <= 0) return [];
 

@@ -94,7 +94,10 @@ export function ResultsScreen({ game, onReplay, onHome }: ResultsScreenProps) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <CountUpScore value={final} className={cn('font-led text-6xl', LED_TEXT[color], GLOW[color])} />
+        <CountUpScore
+          value={final}
+          className={cn('font-led text-6xl', LED_TEXT[color], GLOW[color])}
+        />
         <span className="font-mono text-sm text-steel">/ 10</span>
       </motion.div>
 
@@ -120,9 +123,14 @@ export function ResultsScreen({ game, onReplay, onHome }: ResultsScreenProps) {
             <span className="text-steel">{formatSeconds(r.targetMs)}s</span>
             <span className="text-steel-dim">→</span>
             <span className="text-bone">{formatSeconds(r.guessMs)}s</span>
-            <span className="ml-auto tabular-nums text-steel-dim">{formatSignedMs(r.deltaMs)}ms</span>
+            <span className="ml-auto tabular-nums text-steel-dim">
+              {formatSignedMs(r.deltaMs)}ms
+            </span>
             <span
-              className={cn('w-8 text-right font-semibold tabular-nums', LED_TEXT[scoreColor(r.points)])}
+              className={cn(
+                'w-8 text-right font-semibold tabular-nums',
+                LED_TEXT[scoreColor(r.points)],
+              )}
             >
               {r.points.toFixed(1)}
             </span>

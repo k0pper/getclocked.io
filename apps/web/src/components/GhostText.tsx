@@ -33,9 +33,7 @@ export function GhostText({
   ariaLabel,
 }: GhostTextProps) {
   const ghost =
-    variant === 'led'
-      ? value.replace(/[0-9]/g, '8')
-      : value.replace(/[A-Za-z0-9]/g, '~');
+    variant === 'led' ? value.replace(/[0-9]/g, '8') : value.replace(/[A-Za-z0-9]/g, '~');
   const font = variant === 'led' ? 'font-led' : 'font-display';
   const labelled = ariaLabel ?? value;
 

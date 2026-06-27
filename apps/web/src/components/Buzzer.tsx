@@ -109,7 +109,10 @@ export function Buzzer({ state, onTap, className }: BuzzerProps) {
           {pulse > 0 && (
             <motion.span
               key={pulse}
-              className={cn('pointer-events-none absolute inset-0 rounded-full border-2', RING[state])}
+              className={cn(
+                'pointer-events-none absolute inset-0 rounded-full border-2',
+                RING[state],
+              )}
               initial={{ opacity: 0.6, scale: 0.92 }}
               animate={{ opacity: 0, scale: 1.35 }}
               exit={{ opacity: 0 }}

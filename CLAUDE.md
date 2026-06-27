@@ -4,24 +4,24 @@ Guidance for AI agents (and humans) extending getclocked.io. Read this first, th
 
 ## The one rule that explains the architecture
 
-**`packages/game-core` never learns *when* anything happened.** It is pure: no DOM, no timers, no audio, no `performance.now`, no `Math.random` (RNG is seeded). It is handed elapsed-millisecond numbers and asked to generate / score / format / advance. **`apps/web` owns every clock.** Keep that boundary and most decisions follow. Anything reusable by the future multiplayer *server* lives in `game-core`; anything touching time, sound, or the DOM lives in the app.
+**`packages/game-core` never learns _when_ anything happened.** It is pure: no DOM, no timers, no audio, no `performance.now`, no `Math.random` (RNG is seeded). It is handed elapsed-millisecond numbers and asked to generate / score / format / advance. **`apps/web` owns every clock.** Keep that boundary and most decisions follow. Anything reusable by the future multiplayer _server_ lives in `game-core`; anything touching time, sound, or the DOM lives in the app.
 
 ## Where things live
 
-| Area | Path |
-| --- | --- |
-| Scoring / RNG / durations / reducer (pure) | `packages/game-core/src/*` |
-| Phase machine (the conductor) | `apps/web/src/game/useRoundMachine.ts` |
-| Audio engine (Tone.js, lazy) | `apps/web/src/audio/engine.ts` |
-| LED clock / buzzer / pips / ghost text | `apps/web/src/components/*` |
-| Screens (title / game / results) | `apps/web/src/screens/*` |
-| Design tokens + LED utilities | `apps/web/src/styles/globals.css` |
-| Tunable timing/input constants | `apps/web/src/lib/constants.ts` |
+| Area                                       | Path                                   |
+| ------------------------------------------ | -------------------------------------- |
+| Scoring / RNG / durations / reducer (pure) | `packages/game-core/src/*`             |
+| Phase machine (the conductor)              | `apps/web/src/game/useRoundMachine.ts` |
+| Audio engine (Tone.js, lazy)               | `apps/web/src/audio/engine.ts`         |
+| LED clock / buzzer / pips / ghost text     | `apps/web/src/components/*`            |
+| Screens (title / game / results)           | `apps/web/src/screens/*`               |
+| Design tokens + LED utilities              | `apps/web/src/styles/globals.css`      |
+| Tunable timing/input constants             | `apps/web/src/lib/constants.ts`        |
 
 ## Non-negotiable patterns
 
 - **rAF → refs/DOM, never `setState`.** The LED clock animates at 60fps by mutating `textContent`/`opacity` on a ref. Driving that through React state would re-render the tree every frame. `setState` is for discrete phase transitions only. (See `LEDClock.tsx`, and `.agents/skills/vercel-react-best-practices`.)
-- **The audio clock is the authority for the target interval.** Both target beeps are scheduled as a pair on `ctx.currentTime` (`engine.scheduleTargetBeeps`), so the gap the player *hears* equals `T` exactly — `setTimeout`/rAF would drift or throttle. Measurement of the player's guess uses `event.timeStamp` / `performance.now()`.
+- **The audio clock is the authority for the target interval.** Both target beeps are scheduled as a pair on `ctx.currentTime` (`engine.scheduleTargetBeeps`), so the gap the player _hears_ equals `T` exactly — `setTimeout`/rAF would drift or throttle. Measurement of the player's guess uses `event.timeStamp` / `performance.now()`.
 - **One physical press = one logical tap.** `Buzzer.tsx` de-dupes pointer + Space, ignores key-repeat, and only fires while armed/live.
 - **Reduced motion is respected** everywhere; it must never change timing/scoring, only visuals.
 - **Pure logic is TDD'd.** Add a failing Vitest in `game-core` first, then implement. Test behaviour through the public API.
@@ -41,7 +41,7 @@ Reference material, already curated for this stack. Consult before guessing: `fr
 
 - **Node must be `>=22.13`.** Vite 8 / ESLint 10 / jsdom 29 require it. The repo pins `22.23.1`.
 - **pnpm version churn purges `node_modules`** with a TTY prompt; `.npmrc` sets `confirm-modules-purge=false`. If an install hangs, that's why.
-- **Supply-chain policy (`minimumReleaseAge`)** rejects packages published <~24h ago. The pinning rule is *latest stable that's ≥24h old* — that's why `eslint` is 10.5.0 and `prettier` 3.8.5, not the absolute latest.
+- **Supply-chain policy (`minimumReleaseAge`)** rejects packages published <~24h ago. The pinning rule is _latest stable that's ≥24h old_ — that's why `eslint` is 10.5.0 and `prettier` 3.8.5, not the absolute latest.
 - **StrictMode double-invokes** effects/initializers in dev. Effects are idempotent and timers are cleaned per-phase; don't put side effects in `setState` updaters.
 
 ## Commands

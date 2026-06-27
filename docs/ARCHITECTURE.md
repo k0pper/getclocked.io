@@ -22,7 +22,7 @@ getclocked.io/
 
 ## The boundary (the load-bearing decision)
 
-> **`game-core` never learns *when* anything happened.** It receives elapsed-millisecond numbers and returns generated targets / scores / formatted strings / next state. **The app owns every clock.**
+> **`game-core` never learns _when_ anything happened.** It receives elapsed-millisecond numbers and returns generated targets / scores / formatted strings / next state. **The app owns every clock.**
 
 - **Pure (`game-core`):** branded units (`Ms`/`Score`/`Seed`), seeded RNG (`mulberry32`, `deriveSeed`), `generateTargets`, scoring (`roundScore`/`finalScore` + ratings), formatting, and a `gameReducer` that advances rounds given a measured `guessMs`.
 - **App (`apps/web`):** `performance.now()`/`event.timeStamp`, the rAF ignition loop, the Tone.js graph + audio-clock scheduling, pointer/keyboard input + de-dup, Page Visibility, reduced-motion, and the React phase machine.
@@ -31,7 +31,7 @@ The phase machine is deliberately **not** in `game-core` — it's inseparable fr
 
 ## Real-time design
 
-1. **Target interval `T` is defined on the Web Audio clock.** `engine.scheduleTargetBeeps(T)` schedules START at `ctx.currentTime + leadIn` and STOP at `+ T`. The gap the player hears equals `T` exactly — immune to Tone's look-ahead and to background-tab `setTimeout` clamping. `setTimeout`/rAF only drive *visual* phase changes (and a hidden tab voids the round anyway).
+1. **Target interval `T` is defined on the Web Audio clock.** `engine.scheduleTargetBeeps(T)` schedules START at `ctx.currentTime + leadIn` and STOP at `+ T`. The gap the player hears equals `T` exactly — immune to Tone's look-ahead and to background-tab `setTimeout` clamping. `setTimeout`/rAF only drive _visual_ phase changes (and a hidden tab voids the round anyway).
 2. **The guess `G` is measured on input.** `pointerdown`/Space `keydown`, timestamped with `event.timeStamp` (same time origin as `performance.now()`). Never `click`.
 3. **The LED clock animates via refs/DOM.** A single rAF loop writes `textContent`/`opacity`; React renders the phase shell once. `setState` happens only at discrete transitions, guarded so stale timer callbacks no-op.
 
@@ -45,7 +45,7 @@ Because the whole run is reproducible from `seed` alone, results are shareable/r
 
 The seam is already in place:
 
-- **Server-authoritative scoring:** the server runs the *same* `game-core` code. It holds `seed` + configs, sends only the seed (or per-round derived seed) to clients, and recomputes `roundScore` from submitted `guessMs` (+ optional raw tap timestamps). `deriveSeed(root, i)` lets it verify one round in isolation.
+- **Server-authoritative scoring:** the server runs the _same_ `game-core` code. It holds `seed` + configs, sends only the seed (or per-round derived seed) to clients, and recomputes `roundScore` from submitted `guessMs` (+ optional raw tap timestamps). `deriveSeed(root, i)` lets it verify one round in isolation.
 - **Anti-cheat:** reject implausible `guessMs`, flag `hidden`/`blur` rounds, optionally keep a tamper-evident input trace.
 - **Transport:** socket.io rooms (see `.agents/skills/web-realtime-socket-io`), state/presence in Redis (Upstash).
 - **App changes:** add `react-router` for `/room/:id`, and a shared store (Zustand) for room state.

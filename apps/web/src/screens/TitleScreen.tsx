@@ -65,7 +65,9 @@ export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) 
         <motion.div
           initial={reduce ? false : { opacity: 0 }}
           animate={reduce ? { opacity: 1 } : { opacity: [0, 1, 0.25, 1, 0.55, 1] }}
-          transition={reduce ? undefined : { duration: 1, times: [0, 0.2, 0.34, 0.5, 0.72, 1], delay: 0.15 }}
+          transition={
+            reduce ? undefined : { duration: 1, times: [0, 0.2, 0.34, 0.5, 0.72, 1], delay: 0.15 }
+          }
         >
           <GhostText
             value="GETCLOCKED"
@@ -98,8 +100,8 @@ export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) 
         variants={item}
         className="max-w-xs text-balance text-sm leading-relaxed text-steel"
       >
-        Two beeps mark a hidden interval. Reproduce it blind — seven rounds, one
-        verdict on your sense of time.
+        Two beeps mark a hidden interval. Reproduce it blind — seven rounds, one verdict on your
+        sense of time.
       </motion.p>
 
       <motion.div variants={item} className="flex flex-col items-center gap-3">

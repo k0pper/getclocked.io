@@ -1,6 +1,6 @@
 # getclocked.io
 
-**How good is your sense of time?** A hidden clock runs between two beeps — reproduce the interval blind, by feel. Seven rounds, one score. Nail it and you're *dialed*; whiff and you *get clocked*.
+**How good is your sense of time?** A hidden clock runs between two beeps — reproduce the interval blind, by feel. Seven rounds, one score. Nail it and you're _dialed_; whiff and you _get clocked_.
 
 A browser game inspired by the "guess the time" TikTok/Instagram trend, built to be fast, tactile, and shareable.
 
@@ -13,7 +13,7 @@ A browser game inspired by the "guess the time" TikTok/Instagram trend, built to
 1. A soft **beep** starts a hidden interval `T` (150 ms – 10 s). The LED clock ignites for a moment, then fades to dark.
 2. A second **beep** ends it. You just heard how long `T` was.
 3. **Tap the buzzer** to start your reproduction, **tap again** to stop. The gap between your taps is your guess `G`.
-4. Score is based on `|G − T|`, weighted by *relative* error (a 200 ms miss on 10 s is great; on 200 ms it's a disaster).
+4. Score is based on `|G − T|`, weighted by _relative_ error (a 200 ms miss on 10 s is great; on 200 ms it's a disaster).
 5. After 7 rounds you get a single **0–10** score and a rank, from `TIMELORD` to `GOT CLOCKED`.
 
 ## Tech stack
@@ -35,16 +35,16 @@ pnpm build        # production build of apps/web
 
 ## Scripts (run from the repo root)
 
-| Script | What it does |
-| --- | --- |
-| `pnpm dev` | Vite dev server for `apps/web` |
-| `pnpm build` | Type-check + production build |
-| `pnpm test` | Vitest across the workspace (run once) |
-| `pnpm coverage` | `game-core` coverage report |
-| `pnpm typecheck` | `tsc --noEmit` in every package |
-| `pnpm lint` / `pnpm format` | ESLint / Prettier |
-| `pnpm e2e` | Playwright smoke test (needs `pnpm --filter @getclocked/web exec playwright install chromium` once) |
-| `pnpm check` | typecheck + lint + test (the CI gate) |
+| Script                      | What it does                                                                                        |
+| --------------------------- | --------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                  | Vite dev server for `apps/web`                                                                      |
+| `pnpm build`                | Type-check + production build                                                                       |
+| `pnpm test`                 | Vitest across the workspace (run once)                                                              |
+| `pnpm coverage`             | `game-core` coverage report                                                                         |
+| `pnpm typecheck`            | `tsc --noEmit` in every package                                                                     |
+| `pnpm lint` / `pnpm format` | ESLint / Prettier                                                                                   |
+| `pnpm e2e`                  | Playwright smoke test (needs `pnpm --filter @getclocked/web exec playwright install chromium` once) |
+| `pnpm check`                | typecheck + lint + test (the CI gate)                                                               |
 
 ## Structure
 

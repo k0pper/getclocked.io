@@ -2,7 +2,7 @@
 
 ## Why
 
-A trend on TikTok/Instagram has people estimating, to the millisecond, how much time passed on a digital clock between two moments — then guessing or reproducing it. It's simple, visceral, competitive, and endlessly clippable. `getclocked.io` turns that instinct into a polished browser game built to be picked up by streamers (ohnepixel-tier) and to spread as short clips and shared scores. The name is the hook: be precise and you're *dialed*; miss and you *get clocked*.
+A trend on TikTok/Instagram has people estimating, to the millisecond, how much time passed on a digital clock between two moments — then guessing or reproducing it. It's simple, visceral, competitive, and endlessly clippable. `getclocked.io` turns that instinct into a polished browser game built to be picked up by streamers (ohnepixel-tier) and to spread as short clips and shared scores. The name is the hook: be precise and you're _dialed_; miss and you _get clocked_.
 
 ## Audience
 
@@ -12,7 +12,7 @@ Mobile-first, social-native players (TikTok/Twitch/Discord), streamers and their
 
 A pure **auditory interval-reproduction** game. Per round:
 
-1. Two soft beeps mark a hidden interval `T` (150 ms – 10 s). The LED clock briefly *ignites* (digits running up from 0) then fades dark — it never reveals the final number.
+1. Two soft beeps mark a hidden interval `T` (150 ms – 10 s). The LED clock briefly _ignites_ (digits running up from 0) then fades dark — it never reveals the final number.
 2. The player taps a buzzer to start their reproduction and taps again to stop. The gap is their guess `G`.
 3. The round is scored on `|G − T|`, relative-error weighted (see [GAME-DESIGN.md](GAME-DESIGN.md)).
 4. The target and the player's time are revealed; the clock glows green/amber/red by score.

@@ -8,14 +8,14 @@ The mechanic, the maths, and every knob. Pure logic lives in `packages/game-core
 intro → target → prompt → reproduce → result → (×7) → done
 ```
 
-| Phase | What happens | Buzzer | Clock |
-| --- | --- | --- | --- |
-| `intro` | "Round N" card (or "Replay") | idle | dark |
-| `target` | START beep → hidden `T` → STOP beep (audio-clock scheduled) | idle | ignites at start, fades to dark |
-| `prompt` | "Reproduce it" | **armed** | dark |
-| `reproduce` | started on the first tap; waiting for the stop tap | **live** | ignites on tap, fades |
-| `result` | reveal target vs guess + score | disabled | reveals target, glows by score |
-| `done` | hand the finished game to the results screen | — | — |
+| Phase       | What happens                                                | Buzzer    | Clock                           |
+| ----------- | ----------------------------------------------------------- | --------- | ------------------------------- |
+| `intro`     | "Round N" card (or "Replay")                                | idle      | dark                            |
+| `target`    | START beep → hidden `T` → STOP beep (audio-clock scheduled) | idle      | ignites at start, fades to dark |
+| `prompt`    | "Reproduce it"                                              | **armed** | dark                            |
+| `reproduce` | started on the first tap; waiting for the stop tap          | **live**  | ignites on tap, fades           |
+| `result`    | reveal target vs guess + score                              | disabled  | reveals target, glows by score  |
+| `done`      | hand the finished game to the results screen                | —         | —                               |
 
 ## Target durations
 
@@ -40,28 +40,28 @@ final   = mean(points over 7 rounds)       // 0–10
 
 ### Ratings & ranks
 
-| Per-round (`roundRating`) | Points |
-| --- | --- |
+| Per-round (`roundRating`)                                       | Points                          |
+| --------------------------------------------------------------- | ------------------------------- |
 | `PERFECT` / `DIALED` / `SHARP` / `LOOSE` / `SLOPPY` / `CLOCKED` | ≥9.5 / ≥8 / ≥6 / ≥4 / ≥2 / else |
 
-| Final rank (`gameRank`) | Score |
-| --- | --- |
+| Final rank (`gameRank`)                                                        | Score                           |
+| ------------------------------------------------------------------------------ | ------------------------------- |
 | `TIMELORD` / `CLOCKWORK` / `DIALED IN` / `ROOKIE` / `OFF-BEAT` / `GOT CLOCKED` | ≥9 / ≥7.5 / ≥6 / ≥4 / ≥2 / else |
 
 Scoreboard colour (`scoreColor`): green ≥6, amber ≥3.5, red below.
 
 ## Edge cases (handled in `useRoundMachine`)
 
-| Case | Handling |
-| --- | --- |
-| Player never taps stop | Cap at `MAX_GUESS_MS` (12 s) → void + replay the round |
-| Tab hidden mid-round | `visibilitychange` → void + replay (keeps scores honest) |
-| Tap during the target / ignition | No-op for measurement; ignition never gates input |
-| `T = 150 ms` | Ignition compresses to a fraction of `T` — a single glow flash |
-| Space held (key repeat) | `event.repeat` ignored |
-| Pointer + Space from one press | Coalesced within `COALESCE_MS` (60 ms) |
-| Double-tap bounce | `MIN_TAP_GAP_MS` (30 ms) minimum between start and stop |
-| Audio fails / no device | Sound is feedback only; the round proceeds regardless |
+| Case                             | Handling                                                       |
+| -------------------------------- | -------------------------------------------------------------- |
+| Player never taps stop           | Cap at `MAX_GUESS_MS` (12 s) → void + replay the round         |
+| Tab hidden mid-round             | `visibilitychange` → void + replay (keeps scores honest)       |
+| Tap during the target / ignition | No-op for measurement; ignition never gates input              |
+| `T = 150 ms`                     | Ignition compresses to a fraction of `T` — a single glow flash |
+| Space held (key repeat)          | `event.repeat` ignored                                         |
+| Pointer + Space from one press   | Coalesced within `COALESCE_MS` (60 ms)                         |
+| Double-tap bounce                | `MIN_TAP_GAP_MS` (30 ms) minimum between start and stop        |
+| Audio fails / no device          | Sound is feedback only; the round proceeds regardless          |
 
 ## Tuning knobs
 

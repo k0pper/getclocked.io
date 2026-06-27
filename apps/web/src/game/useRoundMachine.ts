@@ -182,9 +182,7 @@ export function useRoundMachine(
 
   const game = gameRef.current;
   const totalRounds = game ? game.targets.length : 0;
-  const round = result
-    ? result.index + 1
-    : Math.min((game ? game.current : 0) + 1, totalRounds);
+  const round = result ? result.index + 1 : Math.min((game ? game.current : 0) + 1, totalRounds);
   const completed = game ? game.results.length : 0;
   const scores = game ? game.results.map((r) => r.points) : [];
   const buzzerState: BuzzerState =

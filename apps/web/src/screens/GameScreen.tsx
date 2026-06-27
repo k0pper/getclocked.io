@@ -140,7 +140,11 @@ function ResultPanel({ result, reduce }: { result: RoundResult; reduce: boolean 
       transition={{ duration: 0.3 }}
     >
       <div className="flex items-end gap-8 font-mono">
-        <Stat label="Target" value={`${formatSeconds(result.targetMs)}s`} className="text-led-amber" />
+        <Stat
+          label="Target"
+          value={`${formatSeconds(result.targetMs)}s`}
+          className="text-led-amber"
+        />
         <Stat label="You" value={`${formatSeconds(result.guessMs)}s`} className="text-bone" />
       </div>
       <p className="font-mono text-xs tracking-widest text-steel">
@@ -158,15 +162,7 @@ function ResultPanel({ result, reduce }: { result: RoundResult; reduce: boolean 
   );
 }
 
-function Stat({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
+function Stat({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
       <span className="text-[0.65rem] uppercase tracking-[0.2em] text-steel-dim">{label}</span>

@@ -40,7 +40,11 @@ export function App() {
     >
       <AnimatePresence mode="wait">
         {screen === 'title' && (
-          <TitleScreen key="title" onStart={startGame} personalBest={readPersonalBest()?.score ?? null} />
+          <TitleScreen
+            key="title"
+            onStart={startGame}
+            personalBest={readPersonalBest()?.score ?? null}
+          />
         )}
         {screen === 'playing' && (
           <GameScreen
