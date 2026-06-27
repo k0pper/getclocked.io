@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+playwright-report
+test-results
+pnpm-lock.yaml
+*.tsbuildinfo
+
+# Vendored skill references — not ours to format.
+.agents
+
+# Generated / binary font assets.
+apps/web/public/fonts

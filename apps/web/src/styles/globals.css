@@ -1,0 +1,34 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* Design tokens (palette, fonts, type scale) land here in Phase 2.
+   For now: a dark canvas so the scaffold renders. */
+@theme {
+  --color-void: #07090f;
+  --color-void-raised: #0e121c;
+  --color-led-green: #34f36b;
+  --color-led-amber: #ffc53d;
+  --color-led-red: #ff4d4d;
+  --color-bone: #eceff4;
+  --color-steel: #5b6675;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-void);
+    color: var(--color-bone);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}

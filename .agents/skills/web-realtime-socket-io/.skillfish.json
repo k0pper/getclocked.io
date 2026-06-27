@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "web-realtime-socket-io",
+  "owner": "agents-inc",
+  "repo": "skills",
+  "path": "dist/plugins/web-realtime-socket-io/skills/web-realtime-socket-io",
+  "branch": "main",
+  "sha": "f01c602170afd28335f5e850fd972675af64e374",
+  "source": "manual"
+}

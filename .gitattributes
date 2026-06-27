@@ -1,0 +1,12 @@
+# Normalize line endings to LF for all text files (Windows dev, LF in repo).
+* text=auto eol=lf
+
+# Binary assets — never normalize.
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.mp3 binary
+*.wav binary

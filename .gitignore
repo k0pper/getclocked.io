@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+dist-ssr/
+*.local
+
+# test & coverage
+coverage/
+playwright-report/
+test-results/
+.playwright/
+
+# typescript
+*.tsbuildinfo
+node_modules/.tmp/
+
+# tooling caches
+.eslintcache
+.turbo/
+
+# deploy
+.vercel/
+
+# editors / os
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

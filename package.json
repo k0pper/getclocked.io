@@ -1,0 +1,38 @@
+{
+  "name": "getclocked",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "getclocked.io — a browser game about your sense of time. Reproduce a hidden interval by feel.",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22.13.0",
+    "pnpm": ">=11.9.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @getclocked/web dev",
+    "build": "pnpm --filter @getclocked/web build",
+    "preview": "pnpm --filter @getclocked/web preview",
+    "test": "pnpm -r test",
+    "test:watch": "pnpm --filter @getclocked/game-core test:watch",
+    "coverage": "pnpm --filter @getclocked/game-core test:coverage",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "e2e": "pnpm --filter @getclocked/web e2e",
+    "check": "pnpm typecheck && pnpm lint && pnpm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.0.1",
+    "eslint": "10.5.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.3",
+    "globals": "17.7.0",
+    "prettier": "3.8.5",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.62.0"
+  }
+}
