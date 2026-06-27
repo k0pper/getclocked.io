@@ -19,6 +19,7 @@ export interface RoundMachine {
   round: number; // 1-based
   totalRounds: number;
   completed: number;
+  scores: number[];
   buzzerState: BuzzerState;
   result: RoundResult | null;
   interrupted: boolean;
@@ -185,6 +186,7 @@ export function useRoundMachine(
     ? result.index + 1
     : Math.min((game ? game.current : 0) + 1, totalRounds);
   const completed = game ? game.results.length : 0;
+  const scores = game ? game.results.map((r) => r.points) : [];
   const buzzerState: BuzzerState =
     phase === 'prompt'
       ? 'armed'
@@ -199,6 +201,7 @@ export function useRoundMachine(
     round,
     totalRounds,
     completed,
+    scores,
     buzzerState,
     result,
     interrupted,

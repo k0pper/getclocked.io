@@ -1,4 +1,5 @@
-import { motion } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { animate, motion, useReducedMotion } from 'motion/react';
 import {
   finalOf,
   gameRank,
@@ -9,7 +10,7 @@ import {
 } from '@getclocked/game-core';
 import { Button } from '@/components/Button';
 import { GhostText } from '@/components/GhostText';
-import { scoreColor, LED_TEXT } from '@/lib/scoreColor';
+import { scoreColor, LED_TEXT, type LedColor } from '@/lib/scoreColor';
 import { useRecordBest } from '@/hooks/usePersonalBest';
 import { cn } from '@/lib/utils';
 
@@ -19,17 +20,52 @@ interface ResultsScreenProps {
   onHome: () => void;
 }
 
-const GLOW: Record<'green' | 'amber' | 'red', string> = {
+const GLOW: Record<LedColor, string> = {
   green: 'led-glow-green',
   amber: 'led-glow-amber',
   red: 'led-glow-red',
 };
+
+function CountUpScore({ value, className }: { value: number; className?: string }) {
+  const reduce = useReducedMotion();
+  const [n, setN] = useState(reduce ? value : 0);
+  useEffect(() => {
+    if (reduce) {
+      setN(value);
+      return;
+    }
+    const controls = animate(0, value, {
+      duration: 0.9,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: setN,
+    });
+    return () => controls.stop();
+  }, [value, reduce]);
+  return <span className={className}>{n.toFixed(1)}</span>;
+}
 
 export function ResultsScreen({ game, onReplay, onHome }: ResultsScreenProps) {
   const final = finalOf(game) ?? score(0);
   const rank = gameRank(final);
   const color = scoreColor(final);
   const { best, isNewBest } = useRecordBest(final, game.seed);
+  const [copied, setCopied] = useState(false);
+
+  const onShare = async () => {
+    const url = typeof location !== 'undefined' ? location.href : 'https://getclocked.io';
+    const text = `${rank} — I scored ${final.toFixed(1)}/10 on getclocked.io. How good is YOUR sense of time?`;
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title: 'getclocked.io', text, url });
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1800);
+      }
+    } catch {
+      // share sheet dismissed / clipboard blocked — no-op
+    }
+  };
 
   return (
     <motion.section
@@ -58,9 +94,7 @@ export function ResultsScreen({ game, onReplay, onHome }: ResultsScreenProps) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <span className={cn('font-led text-6xl', LED_TEXT[color], GLOW[color])}>
-          {final.toFixed(1)}
-        </span>
+        <CountUpScore value={final} className={cn('font-led text-6xl', LED_TEXT[color], GLOW[color])} />
         <span className="font-mono text-sm text-steel">/ 10</span>
       </motion.div>
 
@@ -96,13 +130,18 @@ export function ResultsScreen({ game, onReplay, onHome }: ResultsScreenProps) {
         ))}
       </ul>
 
-      <div className="mt-auto flex gap-3 pt-6">
-        <Button variant="ghost" size="md" onClick={onHome}>
-          Home
+      <div className="mt-auto flex flex-col items-center gap-3 pt-6">
+        <Button variant="ghost" size="sm" onClick={onShare}>
+          {copied ? 'Copied!' : 'Share result'}
         </Button>
-        <Button variant="amber" size="md" onClick={onReplay}>
-          Play again
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="ghost" size="md" onClick={onHome}>
+            Home
+          </Button>
+          <Button variant="amber" size="md" onClick={onReplay}>
+            Play again
+          </Button>
+        </div>
       </div>
     </motion.section>
   );

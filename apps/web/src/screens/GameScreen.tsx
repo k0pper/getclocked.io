@@ -64,7 +64,7 @@ export function GameScreen({ seed, onComplete, onQuit }: GameScreenProps) {
       </header>
 
       <div className="mt-5 flex justify-center">
-        <RoundPips total={m.totalRounds} completed={m.completed} />
+        <RoundPips total={m.totalRounds} scores={m.scores} />
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-7">
