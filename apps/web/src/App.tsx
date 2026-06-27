@@ -2,26 +2,37 @@ import { useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 import type { GameState } from '@getclocked/game-core';
 import { audio } from '@/audio/engine';
+import { AuthProvider } from '@/hooks/useAuth';
 import { readPersonalBest } from '@/hooks/usePersonalBest';
+import * as api from '@/lib/api';
 import { TitleScreen } from '@/screens/TitleScreen';
 import { GameScreen } from '@/screens/GameScreen';
 import { ResultsScreen } from '@/screens/ResultsScreen';
+import { LeaderboardScreen } from '@/screens/LeaderboardScreen';
 
-type Screen = 'title' | 'playing' | 'results';
+type Screen = 'title' | 'playing' | 'results' | 'leaderboard';
 
 const randomSeed = () => Math.floor(Math.random() * 0x1_0000_0000);
 
-export function App() {
+function Game() {
   const [screen, setScreen] = useState<Screen>('title');
   const [seed, setSeed] = useState(randomSeed);
+  const [token, setToken] = useState<string | null>(null);
   const [finalGame, setFinalGame] = useState<GameState | null>(null);
+  const [starting, setStarting] = useState(false);
 
-  // Called from the Start gesture — kicks the AudioContext to life here so the
-  // first beep isn't blocked by autoplay policy.
-  const startGame = () => {
+  // Start gesture: kick the AudioContext to life, then ask the server for a
+  // seed + single-use token (so the run is *rankable*). If the backend is down
+  // or slow, fall back to a local seed and play unranked — never block play.
+  const startGame = async () => {
+    if (starting) return;
+    setStarting(true);
     void audio.start();
-    setSeed(randomSeed());
     setFinalGame(null);
+    const session = await api.startSession();
+    setSeed(session ? session.seed : randomSeed());
+    setToken(session ? session.token : null);
+    setStarting(false);
     setScreen('playing');
   };
 
@@ -43,7 +54,9 @@ export function App() {
           <TitleScreen
             key="title"
             onStart={startGame}
+            starting={starting}
             personalBest={readPersonalBest()?.score ?? null}
+            onLeaderboard={() => setScreen('leaderboard')}
           />
         )}
         {screen === 'playing' && (
@@ -58,11 +71,24 @@ export function App() {
           <ResultsScreen
             key="results"
             game={finalGame}
+            token={token}
             onReplay={startGame}
             onHome={() => setScreen('title')}
+            onLeaderboard={() => setScreen('leaderboard')}
           />
+        )}
+        {screen === 'leaderboard' && (
+          <LeaderboardScreen key="leaderboard" onHome={() => setScreen('title')} />
         )}
       </AnimatePresence>
     </main>
+  );
+}
+
+export function App() {
+  return (
+    <AuthProvider>
+      <Game />
+    </AuthProvider>
   );
 }

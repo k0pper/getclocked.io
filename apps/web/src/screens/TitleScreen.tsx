@@ -1,15 +1,27 @@
 import { useEffect } from 'react';
 import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { GhostText } from '@/components/GhostText';
+import { NeonSign } from '@/components/NeonSign';
 import { Button } from '@/components/Button';
+import { CameraGlyph, SpaceKeyIcon, TerminalGlyph } from '@/components/icons';
+import { useAuth } from '@/hooks/useAuth';
 
 interface TitleScreenProps {
   onStart: () => void;
+  onLeaderboard: () => void;
+  /** True while the server seed is being fetched (keeps the start gesture honest). */
+  starting?: boolean;
   personalBest?: number | null;
 }
 
-export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) {
+export function TitleScreen({
+  onStart,
+  onLeaderboard,
+  starting = false,
+  personalBest = null,
+}: TitleScreenProps) {
   const reduce = useReducedMotion();
+  const { username, logout } = useAuth();
 
   // Space / Enter starts from the title (focus-independent).
   useEffect(() => {
@@ -45,22 +57,7 @@ export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) 
       exit={reduce ? undefined : { opacity: 0, transition: { duration: 0.2 } }}
       variants={container}
     >
-      {/* Eyebrow — a booth "rec" light; introduces the red LED */}
-      <motion.div
-        variants={item}
-        className="flex items-center gap-2.5 font-mono text-[0.7rem] uppercase tracking-[0.35em] text-steel"
-      >
-        <span className="relative flex h-2 w-2">
-          <motion.span
-            className="inline-flex h-2 w-2 rounded-full bg-led-red shadow-[0_0_0.6em_var(--color-led-red)]"
-            animate={reduce ? undefined : { opacity: [1, 0.25, 1] }}
-            transition={reduce ? undefined : { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </span>
-        Singleplayer
-      </motion.div>
-
-      {/* Wordmark — boots like an LED display */}
+      {/* Wordmark — a broken neon sign, a couple of tubes flickering out */}
       <motion.div variants={item} className="flex flex-col items-center gap-2">
         <motion.div
           initial={reduce ? false : { opacity: 0 }}
@@ -69,10 +66,8 @@ export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) 
             reduce ? undefined : { duration: 1, times: [0, 0.2, 0.34, 0.5, 0.72, 1], delay: 0.15 }
           }
         >
-          <GhostText
-            value="GETCLOCKED"
-            variant="display"
-            color="green"
+          <NeonSign
+            text="GETCLOCKED"
             ariaLabel="getclocked dot io"
             className="text-[clamp(1.65rem,8.5vw,4.25rem)]"
           />
@@ -96,26 +91,63 @@ export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) 
         </motion.div>
       </motion.div>
 
-      <motion.p
-        variants={item}
-        className="max-w-xs text-balance text-sm leading-relaxed text-steel"
-      >
-        Two beeps mark a hidden interval. Reproduce it blind — seven rounds, one verdict on your
-        sense of time.
-      </motion.p>
+      <motion.div variants={item} className="flex flex-col items-center gap-3">
+        <p className="text-sm uppercase tracking-[0.18em] text-steel">
+          Two beeps — guess the time
+        </p>
+        <div className="flex items-center gap-5">
+          <a
+            href="https://instagram.com/k.opper"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="flex items-center gap-1.5 font-mono text-xs tracking-wide text-steel-dim transition-[color,filter] hover:text-led-green hover:[filter:drop-shadow(0_0_0.5em_color-mix(in_oklab,var(--color-led-green)_60%,transparent))]"
+          >
+            <CameraGlyph className="h-4 w-4" />
+            k.opper
+          </a>
+          <a
+            href="https://github.com/k0pper"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="flex items-center gap-1.5 font-mono text-xs tracking-wide text-steel-dim transition-[color,filter] hover:text-led-green hover:[filter:drop-shadow(0_0_0.5em_color-mix(in_oklab,var(--color-led-green)_60%,transparent))]"
+          >
+            <TerminalGlyph className="h-4 w-4" />
+            k0pper
+          </a>
+        </div>
+      </motion.div>
 
       <motion.div variants={item} className="flex flex-col items-center gap-3">
         <motion.div
           animate={reduce ? undefined : { scale: [1, 1.035, 1] }}
           transition={reduce ? undefined : { duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <Button variant="amber" size="lg" onClick={onStart} aria-label="Start game">
-            Tap in
+          <Button
+            variant="amber"
+            size="lg"
+            onClick={onStart}
+            disabled={starting}
+            aria-label="Start game"
+            className="w-64"
+          >
+            {starting ? 'Starting…' : 'Tap in'}
+            {!starting && <SpaceKeyIcon className="-mr-1 ml-0.5 opacity-80" />}
           </Button>
         </motion.div>
-        <span className="font-mono text-[0.7rem] uppercase tracking-[0.25em] text-steel-dim">
-          tap or press space
-        </span>
+        {/* Same keycap as "Tap in", but visibly inert: greyed, desaturated and
+            flat (no raised lip), so it reads as not-yet-pressable. */}
+        <Button
+          variant="amber"
+          size="lg"
+          disabled
+          aria-label="Multiplayer — coming soon"
+          className="w-64 opacity-55 grayscale-[0.4] !shadow-none disabled:opacity-55"
+        >
+          Multiplayer
+          <span className="rounded-full border border-void/40 px-2 py-0.5 text-[0.6rem] tracking-[0.2em] text-void/80">
+            Soon
+          </span>
+        </Button>
       </motion.div>
 
       {personalBest != null && (
@@ -126,6 +158,24 @@ export function TitleScreen({ onStart, personalBest = null }: TitleScreenProps) 
           BEST {personalBest.toFixed(1)}
         </motion.div>
       )}
+
+      <motion.div variants={item} className="flex flex-col items-center gap-2">
+        <Button variant="ghost" size="sm" onClick={onLeaderboard}>
+          Leaderboard
+        </Button>
+        {username && (
+          <span className="font-mono text-[0.7rem] text-steel-dim">
+            Signed in as <span className="text-steel">{username}</span>
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="ml-2 underline underline-offset-2 hover:text-steel"
+            >
+              Sign out
+            </button>
+          </span>
+        )}
+      </motion.div>
     </motion.section>
   );
 }
