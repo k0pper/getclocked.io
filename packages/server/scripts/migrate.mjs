@@ -5,10 +5,28 @@
 // Prefers an unpooled/direct connection for DDL when available (Neon's Vercel
 // integration exposes it as DATABASE_URL_UNPOOLED).
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { neon } from '@neondatabase/serverless';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const repoRoot = join(here, '..', '..', '..');
+
+// Node doesn't auto-load .env files — load .env.local / .env (Node 22+) from the
+// repo root or the current dir so `pnpm db:migrate` just works.
+for (const base of [repoRoot, process.cwd()]) {
+  for (const name of ['.env.local', '.env']) {
+    const file = join(base, name);
+    if (existsSync(file)) {
+      try {
+        process.loadEnvFile(file);
+      } catch {
+        /* ignore a malformed/locked env file */
+      }
+    }
+  }
+}
 
 const url =
   process.env.DATABASE_URL_UNPOOLED || process.env.DIRECT_URL || process.env.DATABASE_URL;
