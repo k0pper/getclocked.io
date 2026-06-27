@@ -1,7 +1,16 @@
 import type * as ToneNS from 'tone';
 import { LEAD_IN_MS } from '@/lib/constants';
 
-export type SoundName = 'start' | 'stop' | 'tap' | 'count' | 'success' | 'fail' | 'zap' | 'creak';
+export type SoundName =
+  | 'start'
+  | 'stop'
+  | 'tap'
+  | 'count'
+  | 'success'
+  | 'fail'
+  | 'zap'
+  | 'creak'
+  | 'topple';
 
 /**
  * Single shared audio engine (Tone.js, lazily imported on first start so it
@@ -26,6 +35,10 @@ class AudioEngine {
   // a soft metallic creak (detuned sine) for the loose-screw "D" swinging.
   private fizzle: ToneNS.NoiseSynth | null = null;
   private creak: ToneNS.Synth | null = null;
+  // Easter-egg: the "O" topples like a heavy door — a deep slam — and the whole
+  // sign judders with a fast-tremolo neon buzz on impact.
+  private slam: ToneNS.MembraneSynth | null = null;
+  private neon: ToneNS.Synth | null = null;
 
   get isStarted(): boolean {
     return this.started;
@@ -84,6 +97,24 @@ class AudioEngine {
       oscillator: { type: 'triangle' },
       envelope: { attack: 0.02, decay: 0.3, sustain: 0, release: 0.18 },
     }).connect(master);
+    // Heavy door slam: a deep, fast-decaying membrane boom for the O hitting the
+    // floor — lots of pitch drop, no sustain, like a slab landing.
+    this.slam = new Tone.MembraneSynth({
+      volume: 4,
+      pitchDecay: 0.09,
+      octaves: 7,
+      oscillator: { type: 'sine' },
+      envelope: { attack: 0.001, decay: 0.5, sustain: 0, release: 0.12 },
+    }).connect(master);
+    // Electric neon judder: a low sawtooth hum through a bandpass, its amplitude
+    // chopped by a fast tremolo so it reads as a buzzing sign shaken by the
+    // impact rather than a clean tone.
+    const neonShake = new Tone.Tremolo({ frequency: 21, depth: 0.9 }).connect(master).start();
+    this.neon = new Tone.Synth({
+      volume: -13,
+      oscillator: { type: 'sawtooth' },
+      envelope: { attack: 0.004, decay: 0.18, sustain: 0.3, release: 0.22 },
+    }).connect(new Tone.Filter({ type: 'bandpass', frequency: 440, Q: 2.2 }).connect(neonShake));
 
     this.started = true;
   }
@@ -141,6 +172,23 @@ class AudioEngine {
         this.creak?.triggerAttackRelease('G3', 0.3, t);
         this.creak?.frequency.exponentialRampTo('D3', 0.4, t);
         break;
+      case 'topple': {
+        // The O tips over like a heavy door and slams; the sign judders with an
+        // electric buzz on impact. Timed to the visual: a low hinge-creak as it
+        // goes over, then a slam + neon shake at ~0.5s when it lands.
+        this.creak?.triggerAttackRelease('C3', 0.5, t);
+        this.creak?.frequency.exponentialRampTo('F2', 0.5, t);
+        const land = t + 0.5;
+        // The slam itself: a deep boom that drops in pitch like dead weight.
+        this.slam?.triggerAttackRelease('C1', 0.4, land);
+        // The sign shaking: a buzzing neon hum plus a few electrical crackles
+        // riding the judder.
+        this.neon?.triggerAttackRelease('A1', 0.5, land);
+        this.fizzle?.triggerAttackRelease(0.07, land);
+        this.fizzle?.triggerAttackRelease(0.05, land + 0.13);
+        this.fizzle?.triggerAttackRelease(0.04, land + 0.26);
+        break;
+      }
     }
   }
 

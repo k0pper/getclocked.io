@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import {
+  AnimatePresence,
+  motion,
+  useAnimationControls,
+  useReducedMotion,
+  type Easing,
+} from 'motion/react';
 import { audio } from '@/audio/engine';
 import { cn } from '@/lib/utils';
 
@@ -88,25 +94,40 @@ function Letter({ ch, index, isLast, broken, reduce, onToggle }: LetterProps) {
 
   const handleClick = () => {
     setSparkBatch((b) => b + 1);
+    const breaking = !broken;
     onToggle(index);
     // A click is a user gesture, so it's safe to lazily start audio here.
     void (async () => {
       try {
         await audio.start();
-        audio.play('zap');
-        if (isLast) audio.play('creak');
+        if (ch === 'O' && breaking) {
+          // The O doesn't pop like a tube — it falls like a door and the sign
+          // shakes (slam + electric neon judder, timed to the visual impact).
+          audio.play('topple');
+        } else {
+          audio.play('zap');
+          if (isLast && breaking) audio.play('creak');
+        }
       } catch {
         /* never let audio failure break the interaction */
       }
     })();
   };
 
-  // The lit tube's animation target. Broken → dark (the ghost shows through);
-  // lit → its ambient flicker (or steady if reduced / no flicker assigned).
+  // The O doesn't die like the others — when clicked it gets shoved over and
+  // falls away from the screen (a 3D topple, handled below), so it stays lit on
+  // the way down instead of flickering out.
+  const topple = ch === 'O' && broken;
+
+  // The lit tube's animation target. Broken → dark (the ghost shows through),
+  // except the toppling O which stays lit; lit → its ambient flicker (or steady
+  // if reduced / no flicker assigned).
   const litAnimate = broken
-    ? reduce
-      ? { opacity: 0 }
-      : BREAK_OUT
+    ? topple
+      ? { opacity: 1 }
+      : reduce
+        ? { opacity: 0 }
+        : BREAK_OUT
     : reduce || !flicker
       ? { opacity: 1 }
       : { opacity: flicker.opacity };
@@ -123,18 +144,54 @@ function Letter({ ch, index, isLast, broken, reduce, onToggle }: LetterProps) {
           ease: 'linear' as const,
         };
 
-  // The dangling-D: pivot at the top-left "screw", swing damped, settle inverted.
+  // The dangling-D, as a physical object: hinged at the bottom-left "screw", the
+  // tube swings down under gravity and comes to rest hanging upside-down (180°).
+  // A spring (not scripted keyframes) does the falling, so it overshoots and
+  // rebounds with real momentum; under-damped so it visibly wobbles before
+  // settling. Repairing springs it back upright a touch stiffer/quicker.
+  // Rests a touch shy of a full 180° (counter-clockwise) because the D's bowl
+  // sits to one side of the screw — its weight won't hang dead-straight.
   const dangle = isLast && broken;
-  const dangleAnimate =
+  // Pivot: the D hinges at its bottom-left screw; the toppling O hinges on its
+  // whole base, like a wall meeting the floor — at the glyph's baseline (~86%),
+  // not the inline box bottom, so it doesn't sink below the other letters.
+  const pivot = topple ? '50% 86%' : '12% 84%';
+  const dropAnimate = dangle
+    ? { rotate: 148, rotateX: 0 }
+    : topple
+      ? // Keyframes (not a spring) so the fall can accelerate like gravity: a
+        // slow tip past the balance point, a fast plunge, then a hard landing
+        // that overshoots and rebounds twice before settling at rest.
+        { rotate: 0, rotateX: [0, 8, 86, 79, 83, 82] }
+      : { rotate: 0, rotateX: 0 };
+  const dropTransition = reduce
+    ? { duration: 0 }
+    : dangle
+      ? { type: 'spring' as const, stiffness: 36, damping: 5.2, mass: 1.25 }
+      : topple
+        ? {
+            duration: 1.05,
+            times: [0, 0.18, 0.52, 0.68, 0.84, 1],
+            // Per-segment: ease-in through the accelerating fall, then easing
+            // out of each diminishing bounce — a heavy object coming to rest.
+            ease: ['easeIn', 'easeIn', 'easeOut', 'easeInOut', 'easeOut'] as Easing[],
+          }
+        : { type: 'spring' as const, stiffness: 130, damping: 15 };
+
+  // …and once hung it never fully stills — a faint, slow sway like a loose sign
+  // caught in a draft, layered on top of the resting angle. Starts after the
+  // fall has mostly played out.
+  const swayAnimate = dangle && !reduce ? { rotate: [-2.4, 2.4] } : { rotate: 0 };
+  const swayTransition =
     dangle && !reduce
-      ? { rotate: [0, 152, 168, 175, 180], y: [0, 1, 2, 2, 2] }
-      : dangle && reduce
-        ? { rotate: 180 }
-        : { rotate: 0, y: 0 };
-  const dangleTransition =
-    dangle && !reduce
-      ? { duration: 1.4, times: [0, 0.4, 0.62, 0.82, 1], ease: 'easeOut' as const }
-      : { duration: 0 };
+      ? {
+          duration: 2.8,
+          repeat: Infinity,
+          repeatType: 'mirror' as const,
+          ease: 'easeInOut' as const,
+          delay: 1.3,
+        }
+      : { duration: 0.3 };
 
   return (
     <button
@@ -143,34 +200,46 @@ function Letter({ ch, index, isLast, broken, reduce, onToggle }: LetterProps) {
       aria-label={`${broken ? 'repair' : 'break'} letter ${ch}`}
       className={cn(
         'relative inline-block cursor-pointer appearance-none bg-transparent p-0',
-        'origin-[18%_12%] align-baseline focus-visible:outline-none',
+        'origin-[12%_84%] align-baseline focus-visible:outline-none',
       )}
     >
+      {/* Outer: the perpetual idle sway. Inner: the gravity drop to upside-down.
+          Both hinge at the same screw so the two rotations compose about one
+          pivot — a hanging letter that keeps swaying. */}
       <motion.span
         className="relative inline-block"
-        style={{ transformOrigin: '18% 12%' }}
-        animate={dangleAnimate}
-        transition={dangleTransition}
+        style={{ transformOrigin: pivot }}
+        animate={swayAnimate}
+        transition={swayTransition}
       >
-        {/* The loose screw glint at the pivot — only on the dangling D */}
-        {isLast && (
-          <motion.span
-            aria-hidden
-            className="pointer-events-none absolute left-[14%] top-[6%] h-1 w-1 rounded-full"
-            style={{ background: 'radial-gradient(circle, #fff 0%, #ffc53d 60%, transparent 75%)' }}
-            animate={{ opacity: broken ? [0, 1, 0.6] : 0 }}
-            transition={{ duration: 0.4 }}
-          />
-        )}
-        {/* Unlit tube (ghost) — always present so a dead letter still has form */}
-        <span className="select-none opacity-[0.12]">{ch}</span>
-        {/* Lit tube — flickers in place over the ghost, dies on break */}
         <motion.span
-          className="led-glow-green absolute inset-0"
-          animate={litAnimate}
-          transition={litTransition}
+          className="relative inline-block"
+          style={{ transformOrigin: pivot, transformPerspective: 520 }}
+          animate={dropAnimate}
+          transition={dropTransition}
         >
-          {ch}
+          {/* The loose screw glint at the pivot — only on the dangling D */}
+          {isLast && (
+            <motion.span
+              aria-hidden
+              className="pointer-events-none absolute bottom-[16%] left-[12%] h-1 w-1 rounded-full"
+              style={{
+                background: 'radial-gradient(circle, #fff 0%, #ffc53d 60%, transparent 75%)',
+              }}
+              animate={{ opacity: broken ? [0, 1, 0.6] : 0 }}
+              transition={{ duration: 0.4 }}
+            />
+          )}
+          {/* Unlit tube (ghost) — always present so a dead letter still has form */}
+          <span className="select-none opacity-[0.12]">{ch}</span>
+          {/* Lit tube — flickers in place over the ghost, dies on break */}
+          <motion.span
+            className="led-glow-green absolute inset-0"
+            animate={litAnimate}
+            transition={litTransition}
+          >
+            {ch}
+          </motion.span>
         </motion.span>
       </motion.span>
 
@@ -213,23 +282,40 @@ function Letter({ ch, index, isLast, broken, reduce, onToggle }: LetterProps) {
  * tube rather than vanishing entirely. Reduced motion holds every tube lit.
  *
  * Easter egg: every letter is a button — click to "break" it (the tube dies in
- * a shower of sparks) and click again to repair it. The final "D" loses a screw
- * and dangles upside-down. The whole word still reads as `ariaLabel` to screen
- * readers via a labelled wrapper; the per-letter buttons add break/repair
- * controls on top.
+ * a shower of sparks) and click again to repair it. Two letters break character:
+ * the final "D" loses its top screw and swings down under gravity to hang
+ * upside-down from its remaining screw, never quite settling; the "O" gets shoved
+ * over and topples away from the screen in 3D, like a wall you just pushed. The
+ * whole word still reads as `ariaLabel` to screen readers via a labelled wrapper;
+ * the per-letter buttons add break/repair controls on top.
  */
 export function NeonSign({ text, className, ariaLabel }: NeonSignProps) {
   const reduce = useReducedMotion() ?? false;
   const letters = [...text];
   const [broken, setBroken] = useState<ReadonlySet<number>>(() => new Set());
+  // Imperative control of the whole sign's jolt when the O lands (see toggle).
+  const shake = useAnimationControls();
 
-  const toggle = (index: number) =>
+  const toggle = (index: number) => {
+    // The O toppling over hits the ground hard; the whole sign judders from the
+    // impact. Fire it only on the *break* (not the repair), and time the delay
+    // to the O's plunge landing (~0.5s into its fall). Skip for reduced motion.
+    const breakingO = letters[index] === 'O' && !broken.has(index);
+    if (breakingO && !reduce) {
+      void shake.start({
+        x: [0, -5, 4, -3, 2, -1, 0],
+        y: [0, 3, -2, 2, -1, 1, 0],
+        rotate: [0, -0.6, 0.5, -0.3, 0.2, 0, 0],
+        transition: { delay: 0.5, duration: 0.5, ease: 'easeOut' },
+      });
+    }
     setBroken((prev) => {
       const next = new Set(prev);
       if (next.has(index)) next.delete(index);
       else next.add(index);
       return next;
     });
+  };
 
   return (
     <span
@@ -239,7 +325,7 @@ export function NeonSign({ text, className, ariaLabel }: NeonSignProps) {
           the sign still reads as a whole word; the per-letter buttons below add
           break/repair controls (each with its own aria-label). */}
       <span className="sr-only">{ariaLabel ?? text}</span>
-      <span className="inline-flex">
+      <motion.span className="inline-flex" animate={shake}>
         {letters.map((ch, i) => (
           <Letter
             key={i}
@@ -251,7 +337,7 @@ export function NeonSign({ text, className, ariaLabel }: NeonSignProps) {
             onToggle={toggle}
           />
         ))}
-      </span>
+      </motion.span>
     </span>
   );
 }
