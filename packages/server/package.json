@@ -6,10 +6,14 @@
   "description": "getclocked.io server — auth, leaderboard, and server-authoritative re-scoring (reuses @getclocked/game-core).",
   "exports": {
     ".": "./src/index.ts",
-    "./app": "./src/app.ts",
+    "./app": {
+      "types": "./src/app.ts",
+      "default": "./dist/app.js"
+    },
     "./db/schema": "./src/db/schema.ts"
   },
   "scripts": {
+    "build": "esbuild src/app.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/app.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "db:migrate": "node scripts/migrate.mjs"
@@ -23,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "26.0.1",
+    "esbuild": "0.28.1",
     "typescript": "6.0.3",
     "vitest": "4.1.9"
   }
