@@ -2,14 +2,16 @@
 // in ../drizzle in order and applies its statements over Neon's HTTP driver.
 //
 // Usage:  DATABASE_URL=postgres://... node scripts/migrate.mjs
-// (DIRECT_URL is used if set, since DDL is better over a non-pooled connection.)
+// Prefers an unpooled/direct connection for DDL when available (Neon's Vercel
+// integration exposes it as DATABASE_URL_UNPOOLED).
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { neon } from '@neondatabase/serverless';
 
-const url = process.env.DIRECT_URL || process.env.DATABASE_URL;
+const url =
+  process.env.DATABASE_URL_UNPOOLED || process.env.DIRECT_URL || process.env.DATABASE_URL;
 if (!url) {
   console.error('✖ Set DATABASE_URL (or DIRECT_URL) to your Postgres connection string.');
   process.exit(1);
