@@ -1,16 +1,67 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-/* Design tokens (palette, fonts, type scale) land here in Phase 2.
-   For now: a dark canvas so the scaffold renders. */
+/* ─────────────────────────────────────────────────────────────────────────
+   Design tokens — "inside the booth": a dark inflatable arena, a multi-LED
+   scoreboard (green = go/good, amber = listen/mid, red = clocked/bad), and a
+   precision LED stopwatch. Green is scoped to the LED display only; the wider
+   UI lives in bone/steel so the screen never reads as generic "neon on black".
+   ───────────────────────────────────────────────────────────────────────── */
 @theme {
+  /* Booth / surfaces */
   --color-void: #07090f;
   --color-void-raised: #0e121c;
-  --color-led-green: #34f36b;
-  --color-led-amber: #ffc53d;
-  --color-led-red: #ff4d4d;
+  --color-void-deep: #04050a; /* recessed LED screen */
+  --color-seam: #1b2230; /* bezels, dividers, panel edges */
   --color-bone: #eceff4;
   --color-steel: #5b6675;
+  --color-steel-dim: #353d4a;
+
+  /* Multi-LED scoreboard (used semantically for score quality) */
+  --color-led-green: #34f36b;
+  --color-led-green-dim: #0e7a38;
+  --color-led-amber: #ffc53d;
+  --color-led-amber-dim: #8a5a12;
+  --color-led-red: #ff4d4d;
+  --color-led-red-dim: #7a1f1f;
+
+  /* Type roles */
+  --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-display: 'DSEG14 Classic', 'Space Grotesk Variable', sans-serif;
+  --font-led: 'DSEG7 Classic', 'JetBrains Mono Variable', monospace;
+
+  --radius: 0.75rem;
+}
+
+/* ── LED bloom (text-shadow only; colour comes from the text colour) ─────── */
+@utility led-glow-green {
+  text-shadow:
+    0 0 0.04em color-mix(in oklab, var(--color-led-green) 80%, white),
+    0 0 0.35em color-mix(in oklab, var(--color-led-green) 60%, transparent),
+    0 0 1.1em color-mix(in oklab, var(--color-led-green) 40%, transparent);
+}
+@utility led-glow-amber {
+  text-shadow:
+    0 0 0.04em color-mix(in oklab, var(--color-led-amber) 80%, white),
+    0 0 0.35em color-mix(in oklab, var(--color-led-amber) 60%, transparent),
+    0 0 1.1em color-mix(in oklab, var(--color-led-amber) 40%, transparent);
+}
+@utility led-glow-red {
+  text-shadow:
+    0 0 0.04em color-mix(in oklab, var(--color-led-red) 80%, white),
+    0 0 0.35em color-mix(in oklab, var(--color-led-red) 60%, transparent),
+    0 0 1.1em color-mix(in oklab, var(--color-led-red) 40%, transparent);
+}
+
+/* Recessed screen the LED sits in. */
+@utility led-screen {
+  background:
+    radial-gradient(120% 140% at 50% 0%, #0a0e16, var(--color-void-deep) 70%);
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklab, var(--color-seam) 60%, transparent),
+    inset 0 0 3rem 0 #000,
+    0 1px 0 0 color-mix(in oklab, var(--color-seam) 40%, transparent);
 }
 
 @layer base {
@@ -26,9 +77,52 @@
 
   body {
     margin: 0;
-    background-color: var(--color-void);
+    font-family: var(--font-sans);
     color: var(--color-bone);
+    background-color: var(--color-void);
+    /* Booth atmosphere: amber wash from above, green from below, central lift. */
+    background-image:
+      radial-gradient(
+        60rem 40rem at 50% -10rem,
+        color-mix(in oklab, var(--color-led-amber) 7%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        70rem 52rem at 50% 120%,
+        color-mix(in oklab, var(--color-led-green) 6%, transparent),
+        transparent 65%
+      ),
+      radial-gradient(48rem 48rem at 50% 38%, #0b0f18, transparent 72%);
+    background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-led-green) 35%, transparent);
+    color: var(--color-bone);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-led-amber);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+/* Honour reduced-motion: kill animation/transition, never timing-critical logic. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
