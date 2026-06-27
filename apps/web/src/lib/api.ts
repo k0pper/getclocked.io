@@ -74,7 +74,9 @@ async function parse<T>(res: Response | null): Promise<ApiResult<T>> {
  *  unranked with a local seed (backend down / not configured). Short timeout so
  *  starting a game never hangs on a cold function. */
 export async function startSession(): Promise<Session | null> {
-  const result = await parse<Session>(await call('/game/start', postJson({}), 2000));
+  // Generous enough to ride out a cold serverless start, short enough that a
+  // genuinely-down backend still drops to local (unranked) play promptly.
+  const result = await parse<Session>(await call('/game/start', postJson({}), 4500));
   if (!result.ok) return null;
   const { seed, token } = result.data;
   return typeof seed === 'number' && typeof token === 'string' ? { seed, token } : null;
