@@ -3,6 +3,9 @@ packages:
   - 'packages/*'
   - 'api'
 
+allowBuilds:
+  esbuild: false
+
 # pnpm 10 blocks dependency build scripts by default; allow the ones our
 # toolchain genuinely needs to compile native binaries during install.
 onlyBuiltDependencies:
