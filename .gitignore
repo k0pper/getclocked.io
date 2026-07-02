@@ -37,3 +37,7 @@ Thumbs.db
 
 .vercel
 .env*
+
+
+# APM dependencies
+apm_modules/
