@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Vercel serverless entry — adapts the Hono app (@getclocked/server) to a Node function.",
   "scripts": {
+    "dev": "node dev.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
